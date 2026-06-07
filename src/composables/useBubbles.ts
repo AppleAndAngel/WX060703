@@ -5,7 +5,7 @@ import { useEmotions } from './useEmotions'
 import { useMoodCalendar } from './useMoodCalendar'
 
 const userId = getUserId()
-const { getEmotion } = useEmotions()
+const { emotions, getEmotion } = useEmotions()
 const { recordMood, recordMoodsFromBubbles } = useMoodCalendar()
 
 const initialBubbles: Bubble[] = [
@@ -45,6 +45,126 @@ export function useBubbles() {
   const myBubbles = computed(() =>
     bubbles.filter(b => myBubbleIds.includes(b.id))
   )
+
+  const emotionStats = computed(() => {
+    const stats: Record<string, { count: number; empathyCount: number; bubbles: Bubble[] }> = {}
+
+    emotions.value.forEach(emotion => {
+      stats[emotion.id] = {
+        count: 0,
+        empathyCount: 0,
+        bubbles: []
+      }
+    })
+
+    bubbles.forEach(bubble => {
+      if (!stats[bubble.emotionId]) {
+        stats[bubble.emotionId] = {
+          count: 0,
+          empathyCount: 0,
+          bubbles: []
+        }
+      }
+      stats[bubble.emotionId].count++
+      stats[bubble.emotionId].empathyCount += bubble.empathyCount
+      stats[bubble.emotionId].bubbles.push(bubble)
+    })
+
+    return stats
+  })
+
+  const tonightEmotionStats = computed(() => {
+    const now = new Date()
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+    const tonightStart = todayStart + 18 * 60 * 60 * 1000
+
+    const stats: Record<string, { count: number; empathyCount: number; bubbles: Bubble[] }> = {}
+
+    emotions.value.forEach(emotion => {
+      stats[emotion.id] = {
+        count: 0,
+        empathyCount: 0,
+        bubbles: []
+      }
+    })
+
+    bubbles.forEach(bubble => {
+      if (bubble.createdAt >= tonightStart) {
+        if (!stats[bubble.emotionId]) {
+          stats[bubble.emotionId] = {
+            count: 0,
+            empathyCount: 0,
+            bubbles: []
+          }
+        }
+        stats[bubble.emotionId].count++
+        stats[bubble.emotionId].empathyCount += bubble.empathyCount
+        stats[bubble.emotionId].bubbles.push(bubble)
+      }
+    })
+
+    return stats
+  })
+
+  const emotionPercentages = computed(() => {
+    const total = bubbles.length
+    const percentages: Record<string, number> = {}
+
+    emotions.value.forEach(emotion => {
+      const count = emotionStats.value[emotion.id]?.count || 0
+      percentages[emotion.id] = total > 0 ? Math.round((count / total) * 100) : 0
+    })
+
+    return percentages
+  })
+
+  const tonightEmotionPercentages = computed(() => {
+    const tonightBubbles = bubbles.filter(b => {
+      const now = new Date()
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+      const tonightStart = todayStart + 18 * 60 * 60 * 1000
+      return b.createdAt >= tonightStart
+    })
+    const total = tonightBubbles.length
+    const percentages: Record<string, number> = {}
+
+    emotions.value.forEach(emotion => {
+      const count = tonightEmotionStats.value[emotion.id]?.count || 0
+      percentages[emotion.id] = total > 0 ? Math.round((count / total) * 100) : 0
+    })
+
+    return percentages
+  })
+
+  const dominantEmotion = computed(() => {
+    let maxCount = 0
+    let dominant: string | null = null
+
+    emotions.value.forEach(emotion => {
+      const count = emotionStats.value[emotion.id]?.count || 0
+      if (count > maxCount) {
+        maxCount = count
+        dominant = emotion.id
+      }
+    })
+
+    return dominant
+  })
+
+  const tonightDominantEmotion = computed(() => {
+    let maxCount = 0
+    let dominant: string | null = null
+
+    emotions.value.forEach(emotion => {
+      const count = tonightEmotionStats.value[emotion.id]?.count || 0
+      if (count > maxCount) {
+        maxCount = count
+        dominant = emotion.id
+      }
+    })
+
+    return dominant
+  })
 
   const myTapRecords = computed(() =>
     tapRecords
@@ -215,6 +335,12 @@ export function useBubbles() {
     myBubbles,
     myTapRecords,
     sparkleParticles,
+    emotionStats,
+    tonightEmotionStats,
+    emotionPercentages,
+    tonightEmotionPercentages,
+    dominantEmotion,
+    tonightDominantEmotion,
     addBubble,
     addEmpathy,
     addSparkleParticles,
