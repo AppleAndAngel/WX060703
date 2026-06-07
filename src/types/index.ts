@@ -83,3 +83,14 @@ export interface BottleCatchRecord {
   action: 'empathy' | 'throw_back'
   timestamp: number
 }
+
+export interface NightMessage {
+  id: string
+  text: string
+  emotionId: string
+  bubbleId?: string
+  createdAt: number
+  availableAt: number
+  isRead: boolean
+  ownerId: string
+}

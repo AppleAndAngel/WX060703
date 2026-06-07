@@ -9,13 +9,16 @@ import ResonanceRanking from '@/components/ResonanceRanking.vue'
 import ThrowBottle from '@/components/ThrowBottle.vue'
 import FishBottle from '@/components/FishBottle.vue'
 import EmotionMap from '@/components/EmotionMap.vue'
+import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
+import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
 
 const { bubbles, getTopEmpathy, tonightDominantEmotion } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 const { bottleStats } = useDriftBottles()
+const { unreadCount } = useGoodnightMailbox()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
@@ -23,6 +26,9 @@ const showThrowBottle = ref(false)
 const showFishBottle = ref(false)
 const showBottleMenu = ref(false)
 const showEmotionMap = ref(false)
+const showGoodnightMailbox = ref(false)
+
+const hasUnreadLetters = computed(() => unreadCount.value > 0)
 
 const topBubblesToday = computed(() => getTopEmpathy('today'))
 const hasRankingData = computed(() => topBubblesToday.value.length > 0)
@@ -76,6 +82,14 @@ const openEmotionMap = () => {
 
 const closeEmotionMap = () => {
   showEmotionMap.value = false
+}
+
+const openGoodnightMailbox = () => {
+  showGoodnightMailbox.value = true
+}
+
+const closeGoodnightMailbox = () => {
+  showGoodnightMailbox.value = false
 }
 </script>
 
@@ -169,6 +183,19 @@ const closeEmotionMap = () => {
             </div>
           </button>
           <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/80 to-violet-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-indigo-500/50"
+            @click="openGoodnightMailbox"
+            title="晚安信箱"
+          >
+            <span class="text-lg">💌</span>
+            <div
+              v-if="hasUnreadLetters"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-indigo-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </div>
+          </button>
+          <button
             class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
             @click="openCalendar"
             title="心情日历"
@@ -246,6 +273,10 @@ const closeEmotionMap = () => {
 
     <Transition name="fade">
       <EmotionMap v-if="showEmotionMap" @close="closeEmotionMap" />
+    </Transition>
+
+    <Transition name="fade">
+      <GoodnightMailbox v-if="showGoodnightMailbox" @close="closeGoodnightMailbox" />
     </Transition>
 
     <div
