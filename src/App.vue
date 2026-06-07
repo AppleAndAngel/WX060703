@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Bubble from '@/components/Bubble.vue'
 import MoodWindow from '@/components/MoodWindow.vue'
 import TapHistory from '@/components/TapHistory.vue'
 import EffectLayer from '@/components/EffectLayer.vue'
 import MoodCalendar from '@/components/MoodCalendar.vue'
+import ResonanceRanking from '@/components/ResonanceRanking.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 
-const { bubbles } = useBubbles()
+const { bubbles, getTopEmpathy } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 
 const showCalendar = ref(false)
+const showRanking = ref(false)
+
+const topBubblesToday = computed(() => getTopEmpathy('today'))
+const hasRankingData = computed(() => topBubblesToday.value.length > 0)
 
 const openCalendar = () => {
   showCalendar.value = true
@@ -19,6 +24,14 @@ const openCalendar = () => {
 
 const closeCalendar = () => {
   showCalendar.value = false
+}
+
+const openRanking = () => {
+  showRanking.value = true
+}
+
+const closeRanking = () => {
+  showRanking.value = false
 }
 </script>
 
@@ -44,6 +57,19 @@ const closeCalendar = () => {
           </div>
         </div>
         <div class="flex items-center gap-3">
+          <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50"
+            @click="openRanking"
+            title="共鸣回声"
+          >
+            <span class="text-lg">🔊</span>
+            <div
+              v-if="hasRankingData"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-purple-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ topBubblesToday.length > 99 ? '99+' : topBubblesToday.length }}
+            </div>
+          </button>
           <button
             class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
             @click="openCalendar"
@@ -98,6 +124,10 @@ const closeCalendar = () => {
 
     <Transition name="fade">
       <MoodCalendar v-if="showCalendar" @close="closeCalendar" />
+    </Transition>
+
+    <Transition name="fade">
+      <ResonanceRanking v-if="showRanking" @close="closeRanking" />
     </Transition>
   </div>
 </template>

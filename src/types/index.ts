@@ -57,3 +57,10 @@ export interface DayMood {
 export interface MoodCalendarState {
   days: Record<string, DayMood>
 }
+
+export type TimeRange = 'today' | 'week' | 'all'
+
+export interface RankingBubble extends Bubble {
+  growthRate: number
+  periodEmpathyCount: number
+}

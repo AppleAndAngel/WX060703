@@ -1,5 +1,5 @@
 import { ref, computed, reactive } from 'vue'
-import type { Bubble, TapRecord, SparkleParticle } from '@/types'
+import type { Bubble, TapRecord, SparkleParticle, RankingBubble, TimeRange } from '@/types'
 import { useLocalStorage, getUserId } from './useLocalStorage'
 import { useEmotions } from './useEmotions'
 import { useMoodCalendar } from './useMoodCalendar'
@@ -154,6 +154,62 @@ export function useBubbles() {
     requestAnimationFrame(animate)
   }
 
+  const getTimeRangeStart = (range: TimeRange): number => {
+    const now = new Date()
+    switch (range) {
+      case 'today':
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+        return today.getTime()
+      case 'week':
+        const dayOfWeek = now.getDay() || 7
+        const monday = new Date(now)
+        monday.setDate(now.getDate() - dayOfWeek + 1)
+        monday.setHours(0, 0, 0, 0)
+        return monday.getTime()
+      case 'all':
+      default:
+        return 0
+    }
+  }
+
+  const getBubblesWithStats = (range: TimeRange) => {
+    const startTime = getTimeRangeStart(range)
+    const now = Date.now()
+
+    const periodTapCounts: Record<string, number> = {}
+    tapRecords.forEach(record => {
+      if (record.timestamp >= startTime) {
+        periodTapCounts[record.bubbleId] = (periodTapCounts[record.bubbleId] || 0) + record.count
+      }
+    })
+
+    return bubbles.map(bubble => {
+      const periodCount = periodTapCounts[bubble.id] || 0
+      const ageInHours = Math.max((now - Math.max(bubble.createdAt, startTime)) / 3600000, 0.01)
+      const growthRate = periodCount / ageInHours
+
+      return {
+        ...bubble,
+        growthRate,
+        periodEmpathyCount: periodCount
+      } as RankingBubble
+    })
+  }
+
+  const getTopEmpathy = (range: TimeRange, limit = 10) => {
+    return getBubblesWithStats(range)
+      .sort((a, b) => b.periodEmpathyCount - a.periodEmpathyCount)
+      .filter(b => b.periodEmpathyCount > 0)
+      .slice(0, limit)
+  }
+
+  const getFastestGrowing = (range: TimeRange, limit = 10) => {
+    return getBubblesWithStats(range)
+      .sort((a, b) => b.growthRate - a.growthRate)
+      .filter(b => b.growthRate > 0)
+      .slice(0, limit)
+  }
+
   return {
     bubbles,
     myBubbles,
@@ -162,6 +218,8 @@ export function useBubbles() {
     addBubble,
     addEmpathy,
     addSparkleParticles,
+    getTopEmpathy,
+    getFastestGrowing,
     userId
   }
 }
