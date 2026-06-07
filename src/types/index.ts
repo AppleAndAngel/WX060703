@@ -33,6 +33,7 @@ export interface TapRecord {
   bubbleEmoji: string
   count: number
   timestamp: number
+  fromAnonymous?: boolean
 }
 
 export interface SparkleParticle {

@@ -83,6 +83,32 @@ export function useBubbles() {
           timestamp: Date.now()
         })
       }
+
+      if (myBubbleIds.length > 0 && Math.random() < 0.6) {
+        const randomMyBubbleId = myBubbleIds[Math.floor(Math.random() * myBubbleIds.length)]
+        const myBubble = bubbles.find(b => b.id === randomMyBubbleId)
+        if (myBubble) {
+          myBubble.empathyCount++
+          const myBubbleEmotion = getEmotion(myBubble.emotionId)
+          
+          const myExistingRecord = tapRecords.find(
+            r => r.bubbleId === randomMyBubbleId && Date.now() - r.timestamp < 30000
+          )
+          if (myExistingRecord) {
+            myExistingRecord.count++
+            myExistingRecord.timestamp = Date.now()
+          } else {
+            tapRecords.unshift({
+              id: crypto.randomUUID(),
+              bubbleId: randomMyBubbleId,
+              bubbleEmoji: myBubbleEmotion?.emoji || '💭',
+              count: 1,
+              timestamp: Date.now(),
+              fromAnonymous: true
+            })
+          }
+        }
+      }
     }
 
     syncToStorage()
