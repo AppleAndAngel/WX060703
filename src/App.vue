@@ -12,17 +12,20 @@ import EmotionMap from '@/components/EmotionMap.vue'
 import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
 import AccompanyYou from '@/components/AccompanyYou.vue'
 import MoodAlbum from '@/components/MoodAlbum.vue'
+import NightRadio from '@/components/NightRadio.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
 import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
 import { useCompanion } from '@/composables/useCompanion'
+import { useNightRadio } from '@/composables/useNightRadio'
 
 const { bubbles, getTopEmpathy, tonightDominantEmotion, myBubbles } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 const { bottleStats } = useDriftBottles()
 const { unreadCount } = useGoodnightMailbox()
 const { unreadCount: companionUnreadCount } = useCompanion()
+const { isEnabled: radioEnabled, isPlaying: radioPlaying, toggleRadio } = useNightRadio()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
@@ -33,6 +36,7 @@ const showEmotionMap = ref(false)
 const showGoodnightMailbox = ref(false)
 const showAccompanyYou = ref(false)
 const showAlbum = ref(false)
+const showNightRadio = ref(false)
 
 const hasAlbumData = computed(() => myBubbles.value.length > 0)
 
@@ -115,6 +119,18 @@ const openAlbum = () => {
 
 const closeAlbum = () => {
   showAlbum.value = false
+}
+
+const openNightRadio = () => {
+  showNightRadio.value = true
+}
+
+const closeNightRadio = () => {
+  showNightRadio.value = false
+}
+
+const handleToggleRadio = () => {
+  toggleRadio()
 }
 </script>
 
@@ -247,6 +263,22 @@ const closeAlbum = () => {
             </div>
           </button>
           <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/80 to-orange-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-amber-500/50"
+            :class="{ 'animate-pulse': radioPlaying }"
+            @click="openNightRadio"
+            @contextmenu.prevent="handleToggleRadio"
+            title="深夜电台 (右键快速开关)"
+          >
+            <span class="text-lg">📻</span>
+            <div
+              v-if="radioEnabled"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-amber-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              <span v-if="radioPlaying" class="animate-pulse">●</span>
+              <span v-else>○</span>
+            </div>
+          </button>
+          <button
             class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
             @click="openCalendar"
             title="心情日历"
@@ -336,6 +368,10 @@ const closeAlbum = () => {
 
     <Transition name="fade">
       <MoodAlbum v-if="showAlbum" @close="closeAlbum" />
+    </Transition>
+
+    <Transition name="fade">
+      <NightRadio v-if="showNightRadio" @close="closeNightRadio" />
     </Transition>
 
     <div

@@ -107,3 +107,24 @@ export interface CompanionRecord {
   direction: 'sent' | 'received'
   isRead: boolean
 }
+
+export type RadioEmotionFilter = 'all' | 'happy' | 'angry' | 'lonely'
+
+export interface RadioClip {
+  id: string
+  bubbleId: string
+  text: string
+  emotionId: string
+  emoji: string
+  isPlaying: boolean
+  spokenAt?: number
+}
+
+export interface RadioState {
+  isEnabled: boolean
+  isPlaying: boolean
+  emotionFilter: RadioEmotionFilter
+  currentClip: RadioClip | null
+  playHistory: RadioClip[]
+  speechEnabled: boolean
+}

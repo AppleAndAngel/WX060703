@@ -4,6 +4,7 @@ import type { Bubble } from '@/types'
 import { useEmotions } from '@/composables/useEmotions'
 import { useEffects } from '@/composables/useEffects'
 import { useBubbles } from '@/composables/useBubbles'
+import { useNightRadio } from '@/composables/useNightRadio'
 
 const props = defineProps<{
   bubble: Bubble
@@ -12,6 +13,7 @@ const props = defineProps<{
 const { getEmotion } = useEmotions()
 const { triggerEffect } = useEffects()
 const { addEmpathy, addSparkleParticles, userId } = useBubbles()
+const { isBubblePlaying, isEnabled: radioEnabled } = useNightRadio()
 
 const bubbleRef = ref<HTMLElement | null>(null)
 const isPressing = ref(false)
@@ -39,6 +41,7 @@ const glowIntensity = computed(() => {
 })
 
 const isOwner = computed(() => props.bubble.ownerId === userId)
+const isPlaying = computed(() => isBubblePlaying(props.bubble.id))
 
 const floatStyle = computed(() => {
   const duration = props.bubble.floatDuration
@@ -61,6 +64,9 @@ const glowStyle = computed(() => {
   const baseGlow = `0 0 ${20 + scaleLevel.value * 10}px ${emotion.value.color.from}, 0 0 ${40 + scaleLevel.value * 15}px ${emotion.value.color.to}44`
   if (isPressing.value) {
     return `${baseGlow}, 0 0 60px ${emotion.value.color.from}88`
+  }
+  if (isPlaying.value) {
+    return `${baseGlow}, 0 0 80px ${emotion.value.color.from}aa, 0 0 120px ${emotion.value.color.to}66`
   }
   return baseGlow
 })
@@ -198,13 +204,15 @@ onUnmounted(() => {
         class="bubble absolute inset-2.5 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/20 transition-all duration-200"
         :class="{
           'ring-2 ring-white/50': isPressing,
-          'animate-pulse-glow': scaleLevel > 0
+          'animate-pulse-glow': scaleLevel > 0,
+          'animate-radio-play': isPlaying,
+          'opacity-40': radioEnabled && !isPlaying
         }"
         :style="{
           background: bubbleGradient,
           boxShadow: glowStyle,
-          opacity: glowIntensity + 0.4,
-          transform: `scale(${1 + scaleLevel * 0.05 + (isPressing ? 0.05 : 0)})`,
+          opacity: isPlaying ? 1 : (glowIntensity + 0.4),
+          transform: `scale(${1 + scaleLevel * 0.05 + (isPressing ? 0.05 : 0) + (isPlaying ? 0.1 : 0)})`,
         }"
       >
         <span class="text-3xl" :style="{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }">
@@ -288,5 +296,18 @@ onUnmounted(() => {
 .fade-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(4px);
+}
+
+.animate-radio-play {
+  animation: radio-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes radio-pulse {
+  0%, 100% { 
+    transform: scale(1); 
+  }
+  50% { 
+    transform: scale(1.08); 
+  }
 }
 </style>

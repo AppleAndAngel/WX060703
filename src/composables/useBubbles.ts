@@ -13,8 +13,20 @@ const initialBubbles: Bubble[] = [
   { id: 'demo-2', emotionId: 'angry', text: '又加班，烦死了', x: 75, y: 35, empathyCount: 7, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 1, floatDuration: 10 },
   { id: 'demo-3', emotionId: 'lonely', text: '一个人吃饭', x: 45, y: 45, empathyCount: 12, createdAt: Date.now() - 10800000, ownerId: 'demo', floatOffset: 2, floatDuration: 12 },
   { id: 'demo-4', emotionId: 'happy', text: '收到礼物啦🎁', x: 25, y: 60, empathyCount: 5, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 7 },
-  { id: 'demo-5', emotionId: 'lonely', x: 65, y: 20, empathyCount: 8, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 4, floatDuration: 9 },
+  { id: 'demo-5', emotionId: 'lonely', text: '好想有人陪我说话', x: 65, y: 20, empathyCount: 8, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 4, floatDuration: 9 },
   { id: 'demo-6', emotionId: 'angry', text: '地铁又晚点', x: 85, y: 65, empathyCount: 15, createdAt: Date.now() - 9000000, ownerId: 'demo', floatOffset: 5, floatDuration: 11 },
+  { id: 'demo-7', emotionId: 'happy', text: '终于学会了那首歌！', x: 10, y: 15, empathyCount: 9, createdAt: Date.now() - 4500000, ownerId: 'demo', floatOffset: 6, floatDuration: 8 },
+  { id: 'demo-8', emotionId: 'happy', text: '今天的咖啡特别香', x: 55, y: 75, empathyCount: 4, createdAt: Date.now() - 2700000, ownerId: 'demo', floatOffset: 7, floatDuration: 9 },
+  { id: 'demo-9', emotionId: 'happy', text: '和老朋友通了电话', x: 35, y: 30, empathyCount: 11, createdAt: Date.now() - 6300000, ownerId: 'demo', floatOffset: 8, floatDuration: 10 },
+  { id: 'demo-10', emotionId: 'angry', text: '外卖又送错了', x: 80, y: 50, empathyCount: 6, createdAt: Date.now() - 8100000, ownerId: 'demo', floatOffset: 9, floatDuration: 7 },
+  { id: 'demo-11', emotionId: 'angry', text: '电脑又死机了', x: 20, y: 70, empathyCount: 8, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 10, floatDuration: 11 },
+  { id: 'demo-12', emotionId: 'angry', text: '邻居装修太吵了', x: 60, y: 40, empathyCount: 13, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 0, floatDuration: 8 },
+  { id: 'demo-13', emotionId: 'lonely', text: '朋友圈都是聚会，只有我在家', x: 5, y: 55, empathyCount: 16, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 1, floatDuration: 12 },
+  { id: 'demo-14', emotionId: 'lonely', text: '深夜了，还没睡着', x: 70, y: 15, empathyCount: 10, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 2, floatDuration: 9 },
+  { id: 'demo-15', emotionId: 'lonely', text: '生日快乐，对自己说', x: 40, y: 65, empathyCount: 20, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 10 },
+  { id: 'demo-16', emotionId: 'happy', text: '路边的花开得好美', x: 50, y: 10, empathyCount: 7, createdAt: Date.now() - 4500000, ownerId: 'demo', floatOffset: 4, floatDuration: 7 },
+  { id: 'demo-17', emotionId: 'angry', text: '被人插队了，好气', x: 90, y: 30, empathyCount: 5, createdAt: Date.now() - 6300000, ownerId: 'demo', floatOffset: 5, floatDuration: 11 },
+  { id: 'demo-18', emotionId: 'lonely', text: '看了场电影，却没人分享', x: 30, y: 50, empathyCount: 14, createdAt: Date.now() - 8100000, ownerId: 'demo', floatOffset: 6, floatDuration: 8 },
 ]
 
 const storedBubbles = useLocalStorage<Bubble[]>('bubbles', initialBubbles)
