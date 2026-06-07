@@ -3,8 +3,11 @@ import { ref, computed } from 'vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useEmotions } from '@/composables/useEmotions'
 
+import type { Bubble } from '@/types'
+
 const emit = defineEmits<{
   (e: 'close'): void
+  (e: 'generateCard', bubble: Bubble): void
 }>()
 
 const { myBubblesGroupedByDate, myBubblesStats } = useBubbles()
@@ -216,9 +219,14 @@ const scrollToRight = () => {
                         <div class="text-white/30 text-xs">
                           #{{ group.bubbles.length - bubbleIndex }} 当日
                         </div>
-                        <div class="text-white/30 text-xs font-mono">
-                          ID: {{ bubble.id.slice(0, 6) }}
-                        </div>
+                        <button
+                          class="flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-white/50 hover:text-white transition-all duration-200 text-xs"
+                          :title="'生成' + getEmotion(bubble.emotionId)?.name + '的纪念卡'"
+                          @click.stop="emit('generateCard', bubble)"
+                        >
+                          <span class="text-sm">💌</span>
+                          <span>生成贺卡</span>
+                        </button>
                       </div>
                     </div>
                   </div>

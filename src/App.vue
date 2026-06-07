@@ -15,6 +15,8 @@ import MoodAlbum from '@/components/MoodAlbum.vue'
 import NightRadio from '@/components/NightRadio.vue'
 import EmotionWeather from '@/components/EmotionWeather.vue'
 import MoodDrawer from '@/components/MoodDrawer.vue'
+import EmpathyCard from '@/components/EmpathyCard.vue'
+import type { Bubble as BubbleType } from '@/types'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
@@ -45,6 +47,8 @@ const showAlbum = ref(false)
 const showNightRadio = ref(false)
 const showWeather = ref(false)
 const showDrawer = ref(false)
+const showEmpathyCard = ref(false)
+const cardBubble = ref<BubbleType | null>(null)
 
 const hasAlbumData = computed(() => myBubbles.value.length > 0)
 
@@ -155,6 +159,18 @@ const openDrawer = () => {
 
 const closeDrawer = () => {
   showDrawer.value = false
+}
+
+const openEmpathyCard = (bubble: BubbleType) => {
+  cardBubble.value = bubble
+  showEmpathyCard.value = true
+}
+
+const closeEmpathyCard = () => {
+  showEmpathyCard.value = false
+  setTimeout(() => {
+    cardBubble.value = null
+  }, 300)
 }
 </script>
 
@@ -385,7 +401,7 @@ const closeDrawer = () => {
     </Transition>
 
     <Transition name="fade">
-      <ResonanceRanking v-if="showRanking" @close="closeRanking" />
+      <ResonanceRanking v-if="showRanking" @close="closeRanking" @generate-card="openEmpathyCard" />
     </Transition>
 
     <Transition name="fade">
@@ -417,7 +433,7 @@ const closeDrawer = () => {
     </Transition>
 
     <Transition name="fade">
-      <MoodAlbum v-if="showAlbum" @close="closeAlbum" />
+      <MoodAlbum v-if="showAlbum" @close="closeAlbum" @generate-card="openEmpathyCard" />
     </Transition>
 
     <Transition name="fade">
@@ -430,6 +446,10 @@ const closeDrawer = () => {
 
     <Transition name="fade">
       <MoodDrawer v-if="showDrawer" @close="closeDrawer" />
+    </Transition>
+
+    <Transition name="fade">
+      <EmpathyCard v-if="showEmpathyCard && cardBubble" :bubble="cardBubble" @close="closeEmpathyCard" />
     </Transition>
 
     <div
