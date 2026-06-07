@@ -1,11 +1,25 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import Bubble from '@/components/Bubble.vue'
 import MoodWindow from '@/components/MoodWindow.vue'
 import TapHistory from '@/components/TapHistory.vue'
 import EffectLayer from '@/components/EffectLayer.vue'
+import MoodCalendar from '@/components/MoodCalendar.vue'
 import { useBubbles } from '@/composables/useBubbles'
+import { useMoodCalendar } from '@/composables/useMoodCalendar'
 
 const { bubbles } = useBubbles()
+const { totalMoodDays } = useMoodCalendar()
+
+const showCalendar = ref(false)
+
+const openCalendar = () => {
+  showCalendar.value = true
+}
+
+const closeCalendar = () => {
+  showCalendar.value = false
+}
 </script>
 
 <template>
@@ -29,12 +43,27 @@ const { bubbles } = useBubbles()
             <p class="text-white/40 text-xs">长按气泡，传递共情</p>
           </div>
         </div>
-        <div class="text-right">
-          <div class="text-white/60 text-sm font-mono">
-            {{ bubbles.length }} 个心情
-          </div>
-          <div class="text-white/30 text-xs">
-            在墙上漂浮
+        <div class="flex items-center gap-3">
+          <button
+            class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
+            @click="openCalendar"
+            title="心情日历"
+          >
+            <span class="text-lg">📅</span>
+            <div
+              v-if="totalMoodDays > 0"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-orange-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ totalMoodDays }}
+            </div>
+          </button>
+          <div class="text-right">
+            <div class="text-white/60 text-sm font-mono">
+              {{ bubbles.length }} 个心情
+            </div>
+            <div class="text-white/30 text-xs">
+              在墙上漂浮
+            </div>
           </div>
         </div>
       </div>
@@ -66,10 +95,24 @@ const { bubbles } = useBubbles()
     </div>
 
     <EffectLayer />
+
+    <Transition name="fade">
+      <MoodCalendar v-if="showCalendar" @close="closeCalendar" />
+    </Transition>
   </div>
 </template>
 
 <style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 .stars {
   background-image:
     radial-gradient(1px 1px at 20% 30%, white, transparent),

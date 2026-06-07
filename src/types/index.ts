@@ -46,3 +46,14 @@ export interface SparkleParticle {
   size: number
   life: number
 }
+
+export interface DayMood {
+  dateKey: string
+  emotionIds: string[]
+  bubbleIds: string[]
+  primaryEmotionId?: string
+}
+
+export interface MoodCalendarState {
+  days: Record<string, DayMood>
+}

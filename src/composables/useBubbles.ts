@@ -2,9 +2,11 @@ import { ref, computed, reactive } from 'vue'
 import type { Bubble, TapRecord, SparkleParticle } from '@/types'
 import { useLocalStorage, getUserId } from './useLocalStorage'
 import { useEmotions } from './useEmotions'
+import { useMoodCalendar } from './useMoodCalendar'
 
 const userId = getUserId()
 const { getEmotion } = useEmotions()
+const { recordMood } = useMoodCalendar()
 
 const initialBubbles: Bubble[] = [
   { id: 'demo-1', emotionId: 'happy', text: '今天天气真好！', x: 15, y: 25, empathyCount: 3, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 8 },
@@ -56,6 +58,7 @@ export function useBubbles() {
     }
     bubbles.push(newBubble)
     myBubbleIds.push(newBubble.id)
+    recordMood(newBubble)
     syncToStorage()
     return newBubble
   }
