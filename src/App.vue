@@ -10,15 +10,18 @@ import ThrowBottle from '@/components/ThrowBottle.vue'
 import FishBottle from '@/components/FishBottle.vue'
 import EmotionMap from '@/components/EmotionMap.vue'
 import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
+import AccompanyYou from '@/components/AccompanyYou.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
 import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
+import { useCompanion } from '@/composables/useCompanion'
 
 const { bubbles, getTopEmpathy, tonightDominantEmotion } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 const { bottleStats } = useDriftBottles()
 const { unreadCount } = useGoodnightMailbox()
+const { unreadCount: companionUnreadCount } = useCompanion()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
@@ -27,8 +30,10 @@ const showFishBottle = ref(false)
 const showBottleMenu = ref(false)
 const showEmotionMap = ref(false)
 const showGoodnightMailbox = ref(false)
+const showAccompanyYou = ref(false)
 
 const hasUnreadLetters = computed(() => unreadCount.value > 0)
+const hasUnreadCompanion = computed(() => companionUnreadCount.value > 0)
 
 const topBubblesToday = computed(() => getTopEmpathy('today'))
 const hasRankingData = computed(() => topBubblesToday.value.length > 0)
@@ -90,6 +95,14 @@ const openGoodnightMailbox = () => {
 
 const closeGoodnightMailbox = () => {
   showGoodnightMailbox.value = false
+}
+
+const openAccompanyYou = () => {
+  showAccompanyYou.value = true
+}
+
+const closeAccompanyYou = () => {
+  showAccompanyYou.value = false
 }
 </script>
 
@@ -196,6 +209,19 @@ const closeGoodnightMailbox = () => {
             </div>
           </button>
           <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-rose-500/50"
+            @click="openAccompanyYou"
+            title="陪你一下"
+          >
+            <span class="text-lg">🫂</span>
+            <div
+              v-if="hasUnreadCompanion"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ companionUnreadCount > 99 ? '99+' : companionUnreadCount }}
+            </div>
+          </button>
+          <button
             class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
             @click="openCalendar"
             title="心情日历"
@@ -277,6 +303,10 @@ const closeGoodnightMailbox = () => {
 
     <Transition name="fade">
       <GoodnightMailbox v-if="showGoodnightMailbox" @close="closeGoodnightMailbox" />
+    </Transition>
+
+    <Transition name="fade">
+      <AccompanyYou v-if="showAccompanyYou" @close="closeAccompanyYou" />
     </Transition>
 
     <div

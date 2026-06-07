@@ -95,3 +95,15 @@ export interface NightMessage {
   ownerId: string
   bubbleCreated: boolean
 }
+
+export interface CompanionRecord {
+  id: string
+  bubbleId: string
+  bubbleEmoji: string
+  bubbleText: string
+  bubbleEmotionId: string
+  responseText: string
+  timestamp: number
+  direction: 'sent' | 'received'
+  isRead: boolean
+}
