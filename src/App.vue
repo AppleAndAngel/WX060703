@@ -13,12 +13,14 @@ import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
 import AccompanyYou from '@/components/AccompanyYou.vue'
 import MoodAlbum from '@/components/MoodAlbum.vue'
 import NightRadio from '@/components/NightRadio.vue'
+import EmotionWeather from '@/components/EmotionWeather.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
 import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
 import { useCompanion } from '@/composables/useCompanion'
 import { useNightRadio } from '@/composables/useNightRadio'
+import { useEmotionWeather } from '@/composables/useEmotionWeather'
 
 const { bubbles, getTopEmpathy, tonightDominantEmotion, myBubbles } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
@@ -26,6 +28,7 @@ const { bottleStats } = useDriftBottles()
 const { unreadCount } = useGoodnightMailbox()
 const { unreadCount: companionUnreadCount } = useCompanion()
 const { isEnabled: radioEnabled, isPlaying: radioPlaying, toggleRadio } = useNightRadio()
+const { tonightWeather } = useEmotionWeather()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
@@ -37,6 +40,7 @@ const showGoodnightMailbox = ref(false)
 const showAccompanyYou = ref(false)
 const showAlbum = ref(false)
 const showNightRadio = ref(false)
+const showWeather = ref(false)
 
 const hasAlbumData = computed(() => myBubbles.value.length > 0)
 
@@ -132,6 +136,14 @@ const closeNightRadio = () => {
 const handleToggleRadio = () => {
   toggleRadio()
 }
+
+const openWeather = () => {
+  showWeather.value = true
+}
+
+const closeWeather = () => {
+  showWeather.value = false
+}
 </script>
 
 <template>
@@ -221,6 +233,19 @@ const handleToggleRadio = () => {
               class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-indigo-500 text-white text-xs font-mono flex items-center justify-center"
             >
               {{ bubbles.length }}
+            </div>
+          </button>
+          <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/80 to-cyan-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-sky-500/50"
+            @click="openWeather"
+            title="情绪天气"
+          >
+            <span class="text-lg">🌤️</span>
+            <div
+              v-if="tonightWeather"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ tonightWeather.temperature }}°
             </div>
           </button>
           <button
@@ -372,6 +397,10 @@ const handleToggleRadio = () => {
 
     <Transition name="fade">
       <NightRadio v-if="showNightRadio" @close="closeNightRadio" />
+    </Transition>
+
+    <Transition name="fade">
+      <EmotionWeather v-if="showWeather" @close="closeWeather" />
     </Transition>
 
     <div
