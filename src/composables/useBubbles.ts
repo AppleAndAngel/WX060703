@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import type { Bubble, TapRecord, SparkleParticle } from '@/types'
 import { useLocalStorage, getUserId } from './useLocalStorage'
 import { useEmotions } from './useEmotions'
@@ -15,19 +15,29 @@ const initialBubbles: Bubble[] = [
   { id: 'demo-6', emotionId: 'angry', text: '地铁又晚点', x: 85, y: 65, empathyCount: 15, createdAt: Date.now() - 9000000, ownerId: 'demo', floatOffset: 5, floatDuration: 11 },
 ]
 
-const bubbles = useLocalStorage<Bubble[]>('bubbles', initialBubbles)
-const myBubbleIds = useLocalStorage<string[]>('my-bubbles', [])
-const tapRecords = useLocalStorage<TapRecord[]>('tap-records', [])
+const storedBubbles = useLocalStorage<Bubble[]>('bubbles', initialBubbles)
+const storedMyBubbleIds = useLocalStorage<string[]>('my-bubbles', [])
+const storedTapRecords = useLocalStorage<TapRecord[]>('tap-records', [])
+
+const bubbles = reactive<Bubble[]>([...storedBubbles.value])
+const myBubbleIds = reactive<string[]>([...storedMyBubbleIds.value])
+const tapRecords = reactive<TapRecord[]>([...storedTapRecords.value])
 const sparkleParticles = ref<SparkleParticle[]>([])
+
+const syncToStorage = () => {
+  storedBubbles.value = [...bubbles]
+  storedMyBubbleIds.value = [...myBubbleIds]
+  storedTapRecords.value = [...tapRecords]
+}
 
 export function useBubbles() {
   const myBubbles = computed(() =>
-    bubbles.value.filter(b => myBubbleIds.value.includes(b.id))
+    bubbles.filter(b => myBubbleIds.includes(b.id))
   )
 
   const myTapRecords = computed(() =>
-    tapRecords.value
-      .filter(r => myBubbleIds.value.includes(r.bubbleId))
+    tapRecords
+      .filter(r => myBubbleIds.includes(r.bubbleId))
       .sort((a, b) => b.timestamp - a.timestamp)
   )
 
@@ -44,27 +54,28 @@ export function useBubbles() {
       floatOffset: Math.random() * 10,
       floatDuration: 6 + Math.random() * 8
     }
-    bubbles.value.push(newBubble)
-    myBubbleIds.value.push(newBubble.id)
+    bubbles.push(newBubble)
+    myBubbleIds.push(newBubble.id)
+    syncToStorage()
     return newBubble
   }
 
   const addEmpathy = (bubbleId: string) => {
-    const bubble = bubbles.value.find(b => b.id === bubbleId)
+    const bubble = bubbles.find(b => b.id === bubbleId)
     if (!bubble) return
 
     bubble.empathyCount++
 
     const emotion = getEmotion(bubble.emotionId)
     if (bubble.ownerId !== userId) {
-      const existingRecord = tapRecords.value.find(
+      const existingRecord = tapRecords.find(
         r => r.bubbleId === bubbleId && Date.now() - r.timestamp < 60000
       )
       if (existingRecord) {
         existingRecord.count++
         existingRecord.timestamp = Date.now()
       } else {
-        tapRecords.value.push({
+        tapRecords.unshift({
           id: crypto.randomUUID(),
           bubbleId,
           bubbleEmoji: emotion?.emoji || '💭',
@@ -74,6 +85,7 @@ export function useBubbles() {
       }
     }
 
+    syncToStorage()
     return bubble
   }
 

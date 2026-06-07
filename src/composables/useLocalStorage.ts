@@ -5,7 +5,24 @@ const PREFIX = 'empathy-wall'
 export function useLocalStorage<T>(key: string, defaultValue: T) {
   const fullKey = `${PREFIX}:${key}`
   const stored = localStorage.getItem(fullKey)
-  const data = ref<T>(stored ? JSON.parse(stored) : defaultValue)
+  
+  let initialValue: T
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length === 0 && Array.isArray(defaultValue) && defaultValue.length > 0) {
+        initialValue = defaultValue
+      } else {
+        initialValue = parsed
+      }
+    } catch {
+      initialValue = defaultValue
+    }
+  } else {
+    initialValue = defaultValue
+  }
+  
+  const data = ref<T>(initialValue)
 
   watch(
     data,
