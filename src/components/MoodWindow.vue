@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import { useEmotions } from '@/composables/useEmotions'
 import { useBubbles } from '@/composables/useBubbles'
+import { useMoodDrawer } from '@/composables/useMoodDrawer'
 
 const { emotions } = useEmotions()
 const { addBubble } = useBubbles()
+const { saveToDrawer } = useMoodDrawer()
 
 const isExpanded = ref(false)
 const selectedEmotionId = ref<string | null>(null)
@@ -14,15 +16,28 @@ const selectEmotion = (id: string) => {
   selectedEmotionId.value = id
 }
 
+const resetForm = () => {
+  moodText.value = ''
+  selectedEmotionId.value = null
+  isExpanded.value = false
+}
+
 const submitMood = () => {
   if (!selectedEmotionId.value) return
 
   const text = moodText.value.trim() || undefined
   addBubble(selectedEmotionId.value, text)
 
-  moodText.value = ''
-  selectedEmotionId.value = null
-  isExpanded.value = false
+  resetForm()
+}
+
+const saveMoodToDrawer = () => {
+  if (!selectedEmotionId.value) return
+
+  const text = moodText.value.trim() || undefined
+  saveToDrawer(selectedEmotionId.value, text)
+
+  resetForm()
 }
 
 const toggleExpand = () => {
@@ -87,17 +102,30 @@ const toggleExpand = () => {
           </div>
         </div>
 
-        <button
-          class="submit-btn w-full h-11 rounded-lg font-medium text-white transition-all duration-200 font-display"
-          :class="{
-            'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 cursor-pointer': selectedEmotionId,
-            'bg-white/10 text-white/30 cursor-not-allowed': !selectedEmotionId
-          }"
-          :disabled="!selectedEmotionId"
-          @click="submitMood"
-        >
-          投上墙
-        </button>
+        <div class="flex gap-2">
+          <button
+            class="submit-btn flex-1 h-11 rounded-lg font-medium text-white transition-all duration-200 font-display"
+            :class="{
+              'bg-gradient-to-r from-slate-500 to-slate-600 hover:from-slate-400 hover:to-slate-500 cursor-pointer': selectedEmotionId,
+              'bg-white/10 text-white/30 cursor-not-allowed': !selectedEmotionId
+            }"
+            :disabled="!selectedEmotionId"
+            @click="saveMoodToDrawer"
+          >
+            🗄️ 存进抽屉
+          </button>
+          <button
+            class="submit-btn flex-1 h-11 rounded-lg font-medium text-white transition-all duration-200 font-display"
+            :class="{
+              'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 cursor-pointer': selectedEmotionId,
+              'bg-white/10 text-white/30 cursor-not-allowed': !selectedEmotionId
+            }"
+            :disabled="!selectedEmotionId"
+            @click="submitMood"
+          >
+            投上墙
+          </button>
+        </div>
       </div>
     </Transition>
   </div>

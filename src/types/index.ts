@@ -128,3 +128,12 @@ export interface RadioState {
   playHistory: RadioClip[]
   speechEnabled: boolean
 }
+
+export interface DrawerBubble {
+  id: string
+  emotionId: string
+  text?: string
+  createdAt: number
+  ownerId: string
+  storedAt: number
+}
