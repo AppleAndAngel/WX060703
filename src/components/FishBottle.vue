@@ -13,7 +13,7 @@ const { getEmotion } = useEmotions()
 const { fishBottle, empathizeBottle, throwBackBottle, bottleStats, currentBottle, setCurrentBottle } = useDriftBottles()
 const { triggerEffect } = useEffects()
 
-const stage = ref<'fishing' | 'preview' | 'revealed' | 'empty' | 'done'>('fishing')
+const stage = ref<'fishing' | 'preview' | 'revealed' | 'empty'>('fishing')
 const bottleRef = ref<HTMLElement | null>(null)
 const hasEmpathized = ref(false)
 
@@ -54,10 +54,6 @@ const startFishing = () => {
   }, 1500)
 }
 
-const revealBottle = () => {
-  stage.value = 'revealed'
-}
-
 const handleEmpathize = () => {
   if (!currentBottle.value || hasEmpathized.value) return
 
@@ -68,10 +64,7 @@ const handleEmpathize = () => {
   }
 
   empathizeBottle(currentBottle.value.id)
-
-  setTimeout(() => {
-    stage.value = 'done'
-  }, 1000)
+  stage.value = 'revealed'
 }
 
 const handleThrowBack = () => {
@@ -160,37 +153,14 @@ onMounted(() => {
             </div>
           </div>
 
-          <h2 class="text-white text-xl font-medium mb-2">瓶子里的纸条</h2>
+          <h2 class="text-white text-xl font-medium mb-2">共情已送达！</h2>
           <p class="text-white/40 text-xs mb-4">{{ timeAgo }} 扔出 · {{ currentBottle?.empathyCount }} 人共情</p>
 
-          <div class="message-full p-5 rounded-2xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 mb-6">
+          <div class="message-full p-5 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/10 border border-pink-500/30 mb-6">
             <p class="text-white text-lg leading-relaxed">"{{ currentBottle?.text }}"</p>
           </div>
 
-          <p class="text-white/50 text-sm mb-5">你已经传递了共情 💗</p>
-
-          <div class="flex gap-3">
-            <button
-              class="flex-1 h-12 rounded-xl bg-white/10 text-white/70 font-medium transition-all hover:bg-white/15"
-              @click="emit('close')"
-            >
-              关闭
-            </button>
-            <button
-              class="flex-1 h-12 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-medium shadow-lg shadow-cyan-500/30 transition-all hover:from-cyan-400 hover:to-blue-400"
-              @click="fishAgain"
-            >
-              🎣 再捞一个
-            </button>
-          </div>
-        </div>
-
-        <div v-else-if="stage === 'done'" key="done" class="text-center py-4">
-          <div class="inline-block mb-4">
-            <div class="text-7xl animate-pulse-glow">💗</div>
-          </div>
-          <h2 class="text-white text-xl font-medium mb-2">共情已送达！</h2>
-          <p class="text-white/50 text-sm mb-6">远方的陌生人会收到你的温暖</p>
+          <p class="text-white/50 text-sm mb-5">远方的陌生人会收到你的温暖 💗</p>
 
           <div class="flex gap-3">
             <button

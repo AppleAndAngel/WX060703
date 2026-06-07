@@ -197,10 +197,10 @@ const formatGrowthRate = (rate: number) => {
                 class="text-lg font-bold font-mono"
                 :class="activeTab === 'empathy' ? 'text-blue-300' : 'text-green-300'"
               >
-                {{ activeTab === 'empathy' ? bubble.periodEmpathyCount : bubble.growthRate.toFixed(1) }}
+                {{ activeTab === 'empathy' ? bubble.periodEmpathyCount : formatGrowthRate(bubble.growthRate) }}
               </div>
               <div class="text-[10px] text-white/40">
-                {{ activeTab === 'empathy' ? '次共情' : '次/时' }}
+                {{ activeTab === 'empathy' ? '次共情' : '增长速度' }}
               </div>
             </div>
           </div>
