@@ -29,12 +29,38 @@ const getTodayStart = (): number => {
   return today.getTime()
 }
 
+const createBubblesForUnlockedMessages = () => {
+  const now = Date.now()
+  let hasChanges = false
+
+  messages.forEach(message => {
+    if (
+      message.ownerId === userId &&
+      message.availableAt <= now &&
+      !message.bubbleCreated &&
+      !message.bubbleId
+    ) {
+      const bubble = addBubble(message.emotionId, message.text)
+      message.bubbleId = bubble.id
+      message.bubbleCreated = true
+      hasChanges = true
+    }
+  })
+
+  if (hasChanges) {
+    syncToStorage()
+  }
+}
+
+createBubblesForUnlockedMessages()
+
 export function useGoodnightMailbox() {
-  const availableMessages = computed(() =>
-    messages
+  const availableMessages = computed(() => {
+    createBubblesForUnlockedMessages()
+    return messages
       .filter(m => m.ownerId === userId && m.availableAt <= Date.now())
       .sort((a, b) => a.createdAt - b.createdAt)
-  )
+  })
 
   const pendingMessages = computed(() =>
     messages
@@ -53,18 +79,16 @@ export function useGoodnightMailbox() {
     return availableMessages.value.filter(m => m.createdAt >= todayStart - 86400000 && m.createdAt < todayStart)
   })
 
-  const addNightMessage = (text: string, emotionId: string, createBubble = true): NightMessage => {
-    const bubble = createBubble ? addBubble(emotionId, text) : null
-
+  const addNightMessage = (text: string, emotionId: string): NightMessage => {
     const message: NightMessage = {
       id: crypto.randomUUID(),
       text,
       emotionId,
-      bubbleId: bubble?.id,
       createdAt: Date.now(),
       availableAt: getTomorrowStart(),
       isRead: false,
-      ownerId: userId
+      ownerId: userId,
+      bubbleCreated: false
     }
 
     messages.push(message)

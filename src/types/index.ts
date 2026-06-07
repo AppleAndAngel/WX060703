@@ -93,4 +93,5 @@ export interface NightMessage {
   availableAt: number
   isRead: boolean
   ownerId: string
+  bubbleCreated: boolean
 }
