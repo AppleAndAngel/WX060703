@@ -6,17 +6,25 @@ import TapHistory from '@/components/TapHistory.vue'
 import EffectLayer from '@/components/EffectLayer.vue'
 import MoodCalendar from '@/components/MoodCalendar.vue'
 import ResonanceRanking from '@/components/ResonanceRanking.vue'
+import ThrowBottle from '@/components/ThrowBottle.vue'
+import FishBottle from '@/components/FishBottle.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
+import { useDriftBottles } from '@/composables/useDriftBottles'
 
 const { bubbles, getTopEmpathy } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
+const { bottleStats } = useDriftBottles()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
+const showThrowBottle = ref(false)
+const showFishBottle = ref(false)
+const showBottleMenu = ref(false)
 
 const topBubblesToday = computed(() => getTopEmpathy('today'))
 const hasRankingData = computed(() => topBubblesToday.value.length > 0)
+const hasBottles = computed(() => bottleStats.value.availableCount > 0)
 
 const openCalendar = () => {
   showCalendar.value = true
@@ -32,6 +40,32 @@ const openRanking = () => {
 
 const closeRanking = () => {
   showRanking.value = false
+}
+
+const toggleBottleMenu = () => {
+  showBottleMenu.value = !showBottleMenu.value
+}
+
+const openThrowBottle = () => {
+  showBottleMenu.value = false
+  showThrowBottle.value = true
+}
+
+const closeThrowBottle = () => {
+  showThrowBottle.value = false
+}
+
+const openFishBottle = () => {
+  showBottleMenu.value = false
+  showFishBottle.value = true
+}
+
+const closeFishBottle = () => {
+  showFishBottle.value = false
+}
+
+const handleBottleThrown = () => {
+  console.log('瓶子已扔出')
 }
 </script>
 
@@ -57,6 +91,47 @@ const closeRanking = () => {
           </div>
         </div>
         <div class="flex items-center gap-3">
+          <div class="bottle-menu relative">
+            <button
+              class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/80 to-blue-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/50"
+              @click="toggleBottleMenu"
+              title="漂流瓶"
+            >
+              <span class="text-lg">🍾</span>
+              <div
+                v-if="hasBottles"
+                class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-cyan-500 text-white text-xs font-mono flex items-center justify-center"
+              >
+                {{ bottleStats.availableCount > 99 ? '99+' : bottleStats.availableCount }}
+              </div>
+            </button>
+
+            <Transition name="slide">
+              <div
+                v-if="showBottleMenu"
+                class="menu absolute bottom-full right-0 mb-2 w-40 py-2 rounded-xl bg-wall-surface/95 backdrop-blur-xl border border-white/10 shadow-2xl overflow-hidden"
+              >
+                <button
+                  class="w-full px-4 py-3 text-left text-white text-sm hover:bg-white/10 transition-colors flex items-center gap-2"
+                  @click="openThrowBottle"
+                >
+                  <span class="text-lg">🌊</span>
+                  <span>扔瓶子</span>
+                </button>
+                <button
+                  class="w-full px-4 py-3 text-left text-white text-sm hover:bg-white/10 transition-colors flex items-center gap-2"
+                  @click="openFishBottle"
+                >
+                  <span class="text-lg">🎣</span>
+                  <span>捞瓶子</span>
+                  <span v-if="hasBottles" class="ml-auto text-xs text-cyan-400 font-mono">
+                    {{ bottleStats.availableCount }}
+                  </span>
+                </button>
+              </div>
+            </Transition>
+          </div>
+
           <button
             class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-purple-500/50"
             @click="openRanking"
@@ -129,6 +204,28 @@ const closeRanking = () => {
     <Transition name="fade">
       <ResonanceRanking v-if="showRanking" @close="closeRanking" />
     </Transition>
+
+    <Transition name="fade">
+      <ThrowBottle
+        v-if="showThrowBottle"
+        @close="closeThrowBottle"
+        @thrown="handleBottleThrown"
+      />
+    </Transition>
+
+    <Transition name="fade">
+      <FishBottle
+        v-if="showFishBottle"
+        @close="closeFishBottle"
+        @fish="() => {}"
+      />
+    </Transition>
+
+    <div
+      v-if="showBottleMenu"
+      class="fixed inset-0 z-40"
+      @click="showBottleMenu = false"
+    ></div>
   </div>
 </template>
 
@@ -182,5 +279,16 @@ const closeRanking = () => {
   0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
   33% { transform: translate3d(30px, -20px, 0) scale(1.1); }
   66% { transform: translate3d(-20px, 10px, 0) scale(0.95); }
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
 }
 </style>

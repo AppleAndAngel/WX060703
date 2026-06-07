@@ -1,5 +1,7 @@
 import { computed, reactive } from 'vue'
-import type { DayMood, Bubble } from '@/types'
+import type { DayMood, Bubble, DriftBottle } from '@/types'
+
+type MoodItem = Bubble | DriftBottle
 import { useLocalStorage } from './useLocalStorage'
 import { useEmotions } from './useEmotions'
 
@@ -42,8 +44,8 @@ const findPrimaryEmotion = (emotionIds: string[]): string | undefined => {
 }
 
 export function useMoodCalendar() {
-  const recordMood = (bubble: Bubble) => {
-    const dateKey = getDateKey(bubble.createdAt)
+  const recordMood = (item: MoodItem) => {
+    const dateKey = getDateKey(item.createdAt)
 
     if (!days[dateKey]) {
       days[dateKey] = {
@@ -55,18 +57,18 @@ export function useMoodCalendar() {
     }
 
     const dayMood = days[dateKey]
-    if (dayMood.bubbleIds.includes(bubble.id)) {
+    if (dayMood.bubbleIds.includes(item.id)) {
       return
     }
 
-    dayMood.emotionIds.push(bubble.emotionId)
-    dayMood.bubbleIds.push(bubble.id)
+    dayMood.emotionIds.push(item.emotionId)
+    dayMood.bubbleIds.push(item.id)
     dayMood.primaryEmotionId = findPrimaryEmotion(dayMood.emotionIds)
 
     syncToStorage()
   }
 
-  const recordMoodsFromBubbles = (bubblesList: Bubble[]) => {
+  const recordMoodsFromBubbles = (bubblesList: MoodItem[]) => {
     let hasChanges = false
 
     bubblesList.forEach(bubble => {

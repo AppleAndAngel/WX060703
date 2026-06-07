@@ -64,3 +64,22 @@ export interface RankingBubble extends Bubble {
   growthRate: number
   periodEmpathyCount: number
 }
+
+export interface DriftBottle {
+  id: string
+  emotionId: string
+  text: string
+  empathyCount: number
+  createdAt: number
+  ownerId: string
+  isRead?: boolean
+  readAt?: number
+}
+
+export interface BottleCatchRecord {
+  id: string
+  bottleId: string
+  bottleEmoji: string
+  action: 'empathy' | 'throw_back'
+  timestamp: number
+}
