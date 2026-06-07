@@ -55,11 +55,50 @@ export function useMoodCalendar() {
     }
 
     const dayMood = days[dateKey]
+    if (dayMood.bubbleIds.includes(bubble.id)) {
+      return
+    }
+
     dayMood.emotionIds.push(bubble.emotionId)
     dayMood.bubbleIds.push(bubble.id)
     dayMood.primaryEmotionId = findPrimaryEmotion(dayMood.emotionIds)
 
     syncToStorage()
+  }
+
+  const recordMoodsFromBubbles = (bubblesList: Bubble[]) => {
+    let hasChanges = false
+
+    bubblesList.forEach(bubble => {
+      const dateKey = getDateKey(bubble.createdAt)
+
+      if (!days[dateKey]) {
+        days[dateKey] = {
+          dateKey,
+          emotionIds: [],
+          bubbleIds: [],
+          primaryEmotionId: undefined
+        }
+      }
+
+      const dayMood = days[dateKey]
+      if (dayMood.bubbleIds.includes(bubble.id)) {
+        return
+      }
+
+      dayMood.emotionIds.push(bubble.emotionId)
+      dayMood.bubbleIds.push(bubble.id)
+      hasChanges = true
+    })
+
+    Object.keys(days).forEach(dateKey => {
+      const dayMood = days[dateKey]
+      dayMood.primaryEmotionId = findPrimaryEmotion(dayMood.emotionIds)
+    })
+
+    if (hasChanges) {
+      syncToStorage()
+    }
   }
 
   const getDayMood = (dateKey: string): DayMood | undefined => {
@@ -176,6 +215,7 @@ export function useMoodCalendar() {
   return {
     days,
     recordMood,
+    recordMoodsFromBubbles,
     getDayMood,
     getMonthDays,
     getMonthCalendar,

@@ -6,7 +6,7 @@ import { useMoodCalendar } from './useMoodCalendar'
 
 const userId = getUserId()
 const { getEmotion } = useEmotions()
-const { recordMood } = useMoodCalendar()
+const { recordMood, recordMoodsFromBubbles } = useMoodCalendar()
 
 const initialBubbles: Bubble[] = [
   { id: 'demo-1', emotionId: 'happy', text: '今天天气真好！', x: 15, y: 25, empathyCount: 3, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 8 },
@@ -31,6 +31,15 @@ const syncToStorage = () => {
   storedMyBubbleIds.value = [...myBubbleIds]
   storedTapRecords.value = [...tapRecords]
 }
+
+const initializeMoodCalendar = () => {
+  const bubblesToRecord = bubbles.filter(b =>
+    b.ownerId === userId || b.ownerId === 'demo'
+  )
+  recordMoodsFromBubbles(bubblesToRecord)
+}
+
+initializeMoodCalendar()
 
 export function useBubbles() {
   const myBubbles = computed(() =>
