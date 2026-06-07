@@ -46,6 +46,66 @@ export function useBubbles() {
     bubbles.filter(b => myBubbleIds.includes(b.id))
   )
 
+  const myBubblesChronological = computed(() =>
+    [...myBubbles.value].sort((a, b) => b.createdAt - a.createdAt)
+  )
+
+  const myBubblesGroupedByDate = computed(() => {
+    const groups: Record<string, {
+      dateKey: string
+      dateLabel: string
+      bubbles: Bubble[]
+      totalEmpathy: number
+    }> = {}
+
+    myBubblesChronological.value.forEach(bubble => {
+      const date = new Date(bubble.createdAt)
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const day = String(date.getDate()).padStart(2, '0')
+      const dateKey = `${year}-${month}-${day}`
+
+      const today = new Date()
+      const yesterday = new Date(today)
+      yesterday.setDate(yesterday.getDate() - 1)
+
+      let dateLabel = `${year}年${parseInt(month)}月${parseInt(day)}日`
+      if (dateKey === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`) {
+        dateLabel = '今天'
+      } else if (dateKey === `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`) {
+        dateLabel = '昨天'
+      }
+
+      if (!groups[dateKey]) {
+        groups[dateKey] = {
+          dateKey,
+          dateLabel,
+          bubbles: [],
+          totalEmpathy: 0
+        }
+      }
+      groups[dateKey].bubbles.push(bubble)
+      groups[dateKey].totalEmpathy += bubble.empathyCount
+    })
+
+    return Object.values(groups)
+  })
+
+  const myBubblesStats = computed(() => {
+    const total = myBubbles.value.length
+    const totalEmpathy = myBubbles.value.reduce((sum, b) => sum + b.empathyCount, 0)
+    const earliestDate = total > 0 ? Math.min(...myBubbles.value.map(b => b.createdAt)) : Date.now()
+    const daysSinceFirst = Math.max(1, Math.ceil((Date.now() - earliestDate) / 86400000))
+
+    return {
+      totalBubbles: total,
+      totalEmpathy,
+      avgEmpathyPerBubble: total > 0 ? Math.round(totalEmpathy / total) : 0,
+      daysSinceFirst,
+      avgBubblesPerDay: Math.round((total / daysSinceFirst) * 10) / 10
+    }
+  })
+
   const emotionStats = computed(() => {
     const stats: Record<string, { count: number; empathyCount: number; bubbles: Bubble[] }> = {}
 
@@ -333,6 +393,9 @@ export function useBubbles() {
   return {
     bubbles,
     myBubbles,
+    myBubblesChronological,
+    myBubblesGroupedByDate,
+    myBubblesStats,
     myTapRecords,
     sparkleParticles,
     emotionStats,

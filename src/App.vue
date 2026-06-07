@@ -11,13 +11,14 @@ import FishBottle from '@/components/FishBottle.vue'
 import EmotionMap from '@/components/EmotionMap.vue'
 import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
 import AccompanyYou from '@/components/AccompanyYou.vue'
+import MoodAlbum from '@/components/MoodAlbum.vue'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
 import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
 import { useCompanion } from '@/composables/useCompanion'
 
-const { bubbles, getTopEmpathy, tonightDominantEmotion } = useBubbles()
+const { bubbles, getTopEmpathy, tonightDominantEmotion, myBubbles } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 const { bottleStats } = useDriftBottles()
 const { unreadCount } = useGoodnightMailbox()
@@ -31,6 +32,9 @@ const showBottleMenu = ref(false)
 const showEmotionMap = ref(false)
 const showGoodnightMailbox = ref(false)
 const showAccompanyYou = ref(false)
+const showAlbum = ref(false)
+
+const hasAlbumData = computed(() => myBubbles.value.length > 0)
 
 const hasUnreadLetters = computed(() => unreadCount.value > 0)
 const hasUnreadCompanion = computed(() => companionUnreadCount.value > 0)
@@ -103,6 +107,14 @@ const openAccompanyYou = () => {
 
 const closeAccompanyYou = () => {
   showAccompanyYou.value = false
+}
+
+const openAlbum = () => {
+  showAlbum.value = true
+}
+
+const closeAlbum = () => {
+  showAlbum.value = false
 }
 </script>
 
@@ -222,6 +234,19 @@ const closeAccompanyYou = () => {
             </div>
           </button>
           <button
+            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/80 to-emerald-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-teal-500/50"
+            @click="openAlbum"
+            title="心情相册"
+          >
+            <span class="text-lg">📸</span>
+            <div
+              v-if="hasAlbumData"
+              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-teal-500 text-white text-xs font-mono flex items-center justify-center"
+            >
+              {{ myBubbles.length > 99 ? '99+' : myBubbles.length }}
+            </div>
+          </button>
+          <button
             class="calendar-btn relative w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500/80 to-yellow-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-orange-500/50"
             @click="openCalendar"
             title="心情日历"
@@ -307,6 +332,10 @@ const closeAccompanyYou = () => {
 
     <Transition name="fade">
       <AccompanyYou v-if="showAccompanyYou" @close="closeAccompanyYou" />
+    </Transition>
+
+    <Transition name="fade">
+      <MoodAlbum v-if="showAlbum" @close="closeAlbum" />
     </Transition>
 
     <div
