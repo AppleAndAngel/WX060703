@@ -25,20 +25,6 @@ export interface Bubble {
   ownerId: string
   floatOffset: number
   floatDuration: number
-  roomId?: string
-}
-
-export interface Room {
-  id: string
-  name: string
-  description: string
-  icon: string
-  color: {
-    from: string
-    to: string
-  }
-  onlineCount: number
-  bubbleCount: number
 }
 
 export interface TapRecord {
@@ -108,46 +94,4 @@ export interface NightMessage {
   isRead: boolean
   ownerId: string
   bubbleCreated: boolean
-}
-
-export interface CompanionRecord {
-  id: string
-  bubbleId: string
-  bubbleEmoji: string
-  bubbleText: string
-  bubbleEmotionId: string
-  responseText: string
-  timestamp: number
-  direction: 'sent' | 'received'
-  isRead: boolean
-}
-
-export type RadioEmotionFilter = 'all' | 'happy' | 'angry' | 'lonely'
-
-export interface RadioClip {
-  id: string
-  bubbleId: string
-  text: string
-  emotionId: string
-  emoji: string
-  isPlaying: boolean
-  spokenAt?: number
-}
-
-export interface RadioState {
-  isEnabled: boolean
-  isPlaying: boolean
-  emotionFilter: RadioEmotionFilter
-  currentClip: RadioClip | null
-  playHistory: RadioClip[]
-  speechEnabled: boolean
-}
-
-export interface DrawerBubble {
-  id: string
-  emotionId: string
-  text?: string
-  createdAt: number
-  ownerId: string
-  storedAt: number
 }

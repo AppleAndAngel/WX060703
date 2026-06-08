@@ -10,34 +10,15 @@ import ThrowBottle from '@/components/ThrowBottle.vue'
 import FishBottle from '@/components/FishBottle.vue'
 import EmotionMap from '@/components/EmotionMap.vue'
 import GoodnightMailbox from '@/components/GoodnightMailbox.vue'
-import AccompanyYou from '@/components/AccompanyYou.vue'
-import MoodAlbum from '@/components/MoodAlbum.vue'
-import NightRadio from '@/components/NightRadio.vue'
-import EmotionWeather from '@/components/EmotionWeather.vue'
-import MoodDrawer from '@/components/MoodDrawer.vue'
-import EmpathyCard from '@/components/EmpathyCard.vue'
-import RoomSelector from '@/components/RoomSelector.vue'
-import RoomView from '@/components/RoomView.vue'
-import type { Bubble as BubbleType } from '@/types'
 import { useBubbles } from '@/composables/useBubbles'
 import { useMoodCalendar } from '@/composables/useMoodCalendar'
 import { useDriftBottles } from '@/composables/useDriftBottles'
 import { useGoodnightMailbox } from '@/composables/useGoodnightMailbox'
-import { useCompanion } from '@/composables/useCompanion'
-import { useNightRadio } from '@/composables/useNightRadio'
-import { useEmotionWeather } from '@/composables/useEmotionWeather'
-import { useMoodDrawer } from '@/composables/useMoodDrawer'
-import { useRooms } from '@/composables/useRooms'
 
-const { bubbles, getTopEmpathy, tonightDominantEmotion, myBubbles, quietCornerMode, toggleQuietCornerMode, displayBubbles, displayBubbleCount } = useBubbles()
+const { bubbles, getTopEmpathy, tonightDominantEmotion } = useBubbles()
 const { totalMoodDays } = useMoodCalendar()
 const { bottleStats } = useDriftBottles()
 const { unreadCount } = useGoodnightMailbox()
-const { unreadCount: companionUnreadCount } = useCompanion()
-const { isEnabled: radioEnabled, isPlaying: radioPlaying, toggleRadio } = useNightRadio()
-const { tonightWeather } = useEmotionWeather()
-const { drawerCount, hasItems: hasDrawerItems } = useMoodDrawer()
-const { isInRoom } = useRooms()
 
 const showCalendar = ref(false)
 const showRanking = ref(false)
@@ -46,19 +27,8 @@ const showFishBottle = ref(false)
 const showBottleMenu = ref(false)
 const showEmotionMap = ref(false)
 const showGoodnightMailbox = ref(false)
-const showAccompanyYou = ref(false)
-const showAlbum = ref(false)
-const showNightRadio = ref(false)
-const showWeather = ref(false)
-const showDrawer = ref(false)
-const showEmpathyCard = ref(false)
-const showRoomSelector = ref(false)
-const cardBubble = ref<BubbleType | null>(null)
-
-const hasAlbumData = computed(() => myBubbles.value.length > 0)
 
 const hasUnreadLetters = computed(() => unreadCount.value > 0)
-const hasUnreadCompanion = computed(() => companionUnreadCount.value > 0)
 
 const topBubblesToday = computed(() => getTopEmpathy('today'))
 const hasRankingData = computed(() => topBubblesToday.value.length > 0)
@@ -121,136 +91,30 @@ const openGoodnightMailbox = () => {
 const closeGoodnightMailbox = () => {
   showGoodnightMailbox.value = false
 }
-
-const openAccompanyYou = () => {
-  showAccompanyYou.value = true
-}
-
-const closeAccompanyYou = () => {
-  showAccompanyYou.value = false
-}
-
-const openAlbum = () => {
-  showAlbum.value = true
-}
-
-const closeAlbum = () => {
-  showAlbum.value = false
-}
-
-const openNightRadio = () => {
-  showNightRadio.value = true
-}
-
-const closeNightRadio = () => {
-  showNightRadio.value = false
-}
-
-const handleToggleRadio = () => {
-  toggleRadio()
-}
-
-const openWeather = () => {
-  showWeather.value = true
-}
-
-const closeWeather = () => {
-  showWeather.value = false
-}
-
-const openDrawer = () => {
-  showDrawer.value = true
-}
-
-const closeDrawer = () => {
-  showDrawer.value = false
-}
-
-const openEmpathyCard = (bubble: BubbleType) => {
-  cardBubble.value = bubble
-  showEmpathyCard.value = true
-}
-
-const closeEmpathyCard = () => {
-  showEmpathyCard.value = false
-  setTimeout(() => {
-    cardBubble.value = null
-  }, 300)
-}
-
-const openRoomSelector = () => {
-  showRoomSelector.value = true
-}
-
-const closeRoomSelector = () => {
-  showRoomSelector.value = false
-}
-
-const onRoomEnter = () => {
-  showRoomSelector.value = false
-}
-
-const onLeaveRoom = () => {
-}
 </script>
 
 <template>
-  <RoomView v-if="isInRoom" @leave="onLeaveRoom" />
-
-  <div v-else class="app min-h-screen overflow-hidden relative font-display transition-colors duration-1000"
-    :class="quietCornerMode ? 'bg-quiet-bg' : 'bg-wall-bg'"
-  >
+  <div class="app min-h-screen bg-wall-bg overflow-hidden relative font-display">
     <div class="bg-layer absolute inset-0">
-      <div class="stars absolute inset-0 transition-opacity duration-1000" :class="quietCornerMode ? 'opacity-50' : 'opacity-30'"></div>
-      <div class="gradient-1 absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl transition-all duration-1000"
-        :class="quietCornerMode ? 'bg-emerald-600/15' : 'bg-purple-600/10'"
-      ></div>
-      <div class="gradient-2 absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-3xl transition-all duration-1000"
-        :class="quietCornerMode ? 'bg-teal-600/15' : 'bg-blue-600/10'"
-      ></div>
-      <div class="gradient-3 absolute top-1/3 right-0 w-64 h-64 rounded-full blur-3xl transition-all duration-1000"
-        :class="quietCornerMode ? 'bg-cyan-600/10' : 'bg-pink-600/10'"
-      ></div>
+      <div class="stars absolute inset-0 opacity-30"></div>
+      <div class="gradient-1 absolute top-0 left-1/4 w-96 h-96 rounded-full bg-purple-600/10 blur-3xl"></div>
+      <div class="gradient-2 absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-blue-600/10 blur-3xl"></div>
+      <div class="gradient-3 absolute top-1/3 right-0 w-64 h-64 rounded-full bg-pink-600/10 blur-3xl"></div>
       <div class="noise absolute inset-0 opacity-[0.015]"></div>
     </div>
 
     <div class="header absolute top-0 left-0 right-0 z-10 p-6">
       <div class="flex items-center justify-between max-w-7xl mx-auto">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all duration-500"
-            :class="quietCornerMode ? 'bg-gradient-to-br from-emerald-500 to-teal-500' : 'bg-gradient-to-br from-purple-500 to-pink-500'"
-          >
-            {{ quietCornerMode ? '🌿' : '💭' }}
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xl">
+            💭
           </div>
           <div>
-            <h1 class="text-white text-xl font-medium transition-all duration-300">{{ quietCornerMode ? '安静角落' : '匿名共情墙' }}</h1>
-            <p class="text-white/40 text-xs">{{ quietCornerMode ? '慢下来，感受此刻的平静' : '长按气泡，传递共情' }}</p>
+            <h1 class="text-white text-xl font-medium">匿名共情墙</h1>
+            <p class="text-white/40 text-xs">长按气泡，传递共情</p>
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <button
-            class="relative w-10 h-10 rounded-xl backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105"
-            :class="quietCornerMode ? 'bg-gradient-to-br from-emerald-500/80 to-teal-500/80 hover:shadow-emerald-500/50' : 'bg-gradient-to-br from-slate-500/60 to-slate-600/60 hover:shadow-slate-500/30'"
-            @click="toggleQuietCornerMode"
-            :title="quietCornerMode ? '退出安静角落' : '进入安静角落'"
-          >
-            <span class="text-lg">{{ quietCornerMode ? '🌿' : '🍃' }}</span>
-            <div
-              v-if="quietCornerMode"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-emerald-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              ●
-            </div>
-          </button>
-
-          <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/80 to-blue-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/50"
-            @click="openRoomSelector"
-            title="匿名房间"
-          >
-            <span class="text-lg">🏠</span>
-          </button>
-
           <div class="bottle-menu relative">
             <button
               class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/80 to-blue-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-cyan-500/50"
@@ -319,19 +183,6 @@ const onLeaveRoom = () => {
             </div>
           </button>
           <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/80 to-cyan-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-sky-500/50"
-            @click="openWeather"
-            title="情绪天气"
-          >
-            <span class="text-lg">🌤️</span>
-            <div
-              v-if="tonightWeather"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-sky-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              {{ tonightWeather.temperature }}°
-            </div>
-          </button>
-          <button
             class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/80 to-violet-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-indigo-500/50"
             @click="openGoodnightMailbox"
             title="晚安信箱"
@@ -342,61 +193,6 @@ const onLeaveRoom = () => {
               class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-indigo-500 text-white text-xs font-mono flex items-center justify-center"
             >
               {{ unreadCount > 99 ? '99+' : unreadCount }}
-            </div>
-          </button>
-          <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-500/80 to-pink-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-rose-500/50"
-            @click="openAccompanyYou"
-            title="陪你一下"
-          >
-            <span class="text-lg">🫂</span>
-            <div
-              v-if="hasUnreadCompanion"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-rose-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              {{ companionUnreadCount > 99 ? '99+' : companionUnreadCount }}
-            </div>
-          </button>
-          <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/80 to-emerald-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-teal-500/50"
-            @click="openAlbum"
-            title="心情相册"
-          >
-            <span class="text-lg">📸</span>
-            <div
-              v-if="hasAlbumData"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-teal-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              {{ myBubbles.length > 99 ? '99+' : myBubbles.length }}
-            </div>
-          </button>
-          <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/80 to-orange-500/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-amber-500/50"
-            :class="{ 'animate-pulse': radioPlaying }"
-            @click="openNightRadio"
-            @contextmenu.prevent="handleToggleRadio"
-            title="深夜电台 (右键快速开关)"
-          >
-            <span class="text-lg">📻</span>
-            <div
-              v-if="radioEnabled"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-amber-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              <span v-if="radioPlaying" class="animate-pulse">●</span>
-              <span v-else>○</span>
-            </div>
-          </button>
-          <button
-            class="relative w-10 h-10 rounded-xl bg-gradient-to-br from-slate-500/80 to-slate-600/80 backdrop-blur-md border border-white/20 shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-105 hover:shadow-slate-500/50"
-            @click="openDrawer"
-            title="心情抽屉"
-          >
-            <span class="text-lg">🗄️</span>
-            <div
-              v-if="hasDrawerItems"
-              class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-slate-500 text-white text-xs font-mono flex items-center justify-center"
-            >
-              {{ drawerCount > 99 ? '99+' : drawerCount }}
             </div>
           </button>
           <button
@@ -413,24 +209,22 @@ const onLeaveRoom = () => {
             </div>
           </button>
           <div class="text-right">
-            <div class="text-sm font-mono transition-colors duration-300" :class="quietCornerMode ? 'text-emerald-300' : 'text-white/60'">
-              {{ displayBubbleCount }} 个心情
+            <div class="text-white/60 text-sm font-mono">
+              {{ bubbles.length }} 个心情
             </div>
-            <div class="text-xs transition-colors duration-300" :class="quietCornerMode ? 'text-emerald-300/50' : 'text-white/30'">
-              {{ quietCornerMode ? '在安静角落漂浮' : '在墙上漂浮' }}
+            <div class="text-white/30 text-xs">
+              在墙上漂浮
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="wall absolute inset-0 pt-24 pb-32" :class="{ 'quiet-corner-wall': quietCornerMode }">
+    <div class="wall absolute inset-0 pt-24 pb-32">
       <Bubble
-        v-for="bubble in displayBubbles"
+        v-for="bubble in bubbles"
         :key="bubble.id"
         :bubble="bubble"
-        :quiet-mode="quietCornerMode"
-        @generate-card="openEmpathyCard"
       />
     </div>
 
@@ -458,7 +252,7 @@ const onLeaveRoom = () => {
     </Transition>
 
     <Transition name="fade">
-      <ResonanceRanking v-if="showRanking" @close="closeRanking" @generate-card="openEmpathyCard" />
+      <ResonanceRanking v-if="showRanking" @close="closeRanking" />
     </Transition>
 
     <Transition name="fade">
@@ -483,34 +277,6 @@ const onLeaveRoom = () => {
 
     <Transition name="fade">
       <GoodnightMailbox v-if="showGoodnightMailbox" @close="closeGoodnightMailbox" />
-    </Transition>
-
-    <Transition name="fade">
-      <AccompanyYou v-if="showAccompanyYou" @close="closeAccompanyYou" />
-    </Transition>
-
-    <Transition name="fade">
-      <MoodAlbum v-if="showAlbum" @close="closeAlbum" @generate-card="openEmpathyCard" />
-    </Transition>
-
-    <Transition name="fade">
-      <NightRadio v-if="showNightRadio" @close="closeNightRadio" />
-    </Transition>
-
-    <Transition name="fade">
-      <EmotionWeather v-if="showWeather" @close="closeWeather" />
-    </Transition>
-
-    <Transition name="fade">
-      <MoodDrawer v-if="showDrawer" @close="closeDrawer" />
-    </Transition>
-
-    <Transition name="fade">
-      <EmpathyCard v-if="showEmpathyCard && cardBubble" :bubble="cardBubble" @close="closeEmpathyCard" />
-    </Transition>
-
-    <Transition name="fade">
-      <RoomSelector v-if="showRoomSelector" @close="closeRoomSelector" @enter="onRoomEnter" />
     </Transition>
 
     <div
@@ -582,22 +348,5 @@ const onLeaveRoom = () => {
 .slide-leave-to {
   opacity: 0;
   transform: translateY(10px) scale(0.95);
-}
-
-.bg-quiet-bg {
-  background: linear-gradient(135deg, #0a1628 0%, #0d2818 50%, #0a1f14 100%);
-}
-
-.quiet-corner-wall {
-  animation: quiet-pulse 8s ease-in-out infinite;
-}
-
-@keyframes quiet-pulse {
-  0%, 100% {
-    filter: saturate(0.9) brightness(1);
-  }
-  50% {
-    filter: saturate(1.1) brightness(1.05);
-  }
 }
 </style>
