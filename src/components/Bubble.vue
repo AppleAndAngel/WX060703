@@ -8,6 +8,7 @@ import { useNightRadio } from '@/composables/useNightRadio'
 
 const props = defineProps<{
   bubble: Bubble
+  quietMode?: boolean
 }>()
 
 const { getEmotion } = useEmotions()
@@ -44,7 +45,8 @@ const isOwner = computed(() => props.bubble.ownerId === userId)
 const isPlaying = computed(() => isBubblePlaying(props.bubble.id))
 
 const floatStyle = computed(() => {
-  const duration = props.bubble.floatDuration
+  const baseDuration = props.bubble.floatDuration
+  const duration = props.quietMode ? baseDuration * 1.8 : baseDuration
   const offset = props.bubble.floatOffset
   return {
     animationDuration: `${duration}s`,
@@ -61,12 +63,13 @@ const bubbleGradient = computed(() => {
 
 const glowStyle = computed(() => {
   if (!emotion.value) return ''
-  const baseGlow = `0 0 ${20 + scaleLevel.value * 10}px ${emotion.value.color.from}, 0 0 ${40 + scaleLevel.value * 15}px ${emotion.value.color.to}44`
+  const glowMultiplier = props.quietMode ? 0.5 : 1
+  const baseGlow = `0 0 ${(20 + scaleLevel.value * 10) * glowMultiplier}px ${emotion.value.color.from}, 0 0 ${(40 + scaleLevel.value * 15) * glowMultiplier}px ${emotion.value.color.to}44`
   if (isPressing.value) {
-    return `${baseGlow}, 0 0 60px ${emotion.value.color.from}88`
+    return `${baseGlow}, 0 0 ${60 * glowMultiplier}px ${emotion.value.color.from}88`
   }
   if (isPlaying.value) {
-    return `${baseGlow}, 0 0 80px ${emotion.value.color.from}aa, 0 0 120px ${emotion.value.color.to}66`
+    return `${baseGlow}, 0 0 ${80 * glowMultiplier}px ${emotion.value.color.from}aa, 0 0 ${120 * glowMultiplier}px ${emotion.value.color.to}66`
   }
   return baseGlow
 })

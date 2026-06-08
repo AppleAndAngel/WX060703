@@ -9,6 +9,21 @@ const userId = getUserId()
 const { emotions, getEmotion } = useEmotions()
 const { recordMood, recordMoodsFromBubbles } = useMoodCalendar()
 
+const quietCornerBubbles: Bubble[] = [
+  { id: 'quiet-1', emotionId: 'happy', text: '阳光真好', x: 20, y: 30, empathyCount: 2, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 15 },
+  { id: 'quiet-2', emotionId: 'happy', text: '风很温柔', x: 70, y: 25, empathyCount: 3, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 18 },
+  { id: 'quiet-3', emotionId: 'happy', text: '喝了杯热茶', x: 45, y: 40, empathyCount: 1, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 16 },
+  { id: 'quiet-4', emotionId: 'happy', text: '看云飘过', x: 25, y: 60, empathyCount: 4, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 20 },
+  { id: 'quiet-5', emotionId: 'happy', text: '听鸟叫声', x: 60, y: 55, empathyCount: 2, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 17 },
+  { id: 'quiet-6', emotionId: 'lonely', text: '安静的夜', x: 80, y: 35, empathyCount: 5, createdAt: Date.now() - 10800000, ownerId: 'demo', floatOffset: 5, floatDuration: 19 },
+  { id: 'quiet-7', emotionId: 'happy', text: '花开了', x: 15, y: 20, empathyCount: 3, createdAt: Date.now() - 4500000, ownerId: 'demo', floatOffset: 6, floatDuration: 15 },
+  { id: 'quiet-8', emotionId: 'happy', text: '月亮很圆', x: 55, y: 70, empathyCount: 6, createdAt: Date.now() - 2700000, ownerId: 'demo', floatOffset: 7, floatDuration: 18 },
+  { id: 'quiet-9', emotionId: 'happy', text: '深呼吸', x: 35, y: 50, empathyCount: 2, createdAt: Date.now() - 6300000, ownerId: 'demo', floatOffset: 8, floatDuration: 16 },
+  { id: 'quiet-10', emotionId: 'lonely', text: '想你了', x: 75, y: 65, empathyCount: 7, createdAt: Date.now() - 8100000, ownerId: 'demo', floatOffset: 9, floatDuration: 20 },
+  { id: 'quiet-11', emotionId: 'happy', text: '今天很平静', x: 40, y: 15, empathyCount: 1, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 10, floatDuration: 17 },
+  { id: 'quiet-12', emotionId: 'happy', text: '咖啡很香', x: 65, y: 45, empathyCount: 4, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 0, floatDuration: 15 },
+]
+
 const initialBubbles: Bubble[] = [
   { id: 'demo-1', emotionId: 'happy', text: '今天天气真好！', x: 15, y: 25, empathyCount: 3, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 8 },
   { id: 'demo-2', emotionId: 'angry', text: '又加班，烦死了', x: 75, y: 35, empathyCount: 7, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 1, floatDuration: 10 },
@@ -63,17 +78,32 @@ const initialBubbles: Bubble[] = [
 const storedBubbles = useLocalStorage<Bubble[]>('bubbles', initialBubbles)
 const storedMyBubbleIds = useLocalStorage<string[]>('my-bubbles', [])
 const storedTapRecords = useLocalStorage<TapRecord[]>('tap-records', [])
+const storedQuietCornerMode = useLocalStorage<boolean>('quiet-corner-mode', false)
 
 const bubbles = reactive<Bubble[]>([...storedBubbles.value])
 const myBubbleIds = reactive<string[]>([...storedMyBubbleIds.value])
 const tapRecords = reactive<TapRecord[]>([...storedTapRecords.value])
 const sparkleParticles = ref<SparkleParticle[]>([])
+const quietCornerMode = ref<boolean>(storedQuietCornerMode.value)
 
 const syncToStorage = () => {
   storedBubbles.value = [...bubbles]
   storedMyBubbleIds.value = [...myBubbleIds]
   storedTapRecords.value = [...tapRecords]
+  storedQuietCornerMode.value = quietCornerMode.value
 }
+
+const isQuietCornerBubble = (bubble: Bubble): boolean => {
+  if (!bubble.text) return false
+  if (bubble.emotionId === 'angry') return false
+  const textLength = bubble.text.length
+  return textLength <= 6
+}
+
+const allQuietCornerBubbles = computed(() => {
+  const userQuietBubbles = bubbles.filter(b => isQuietCornerBubble(b) && !b.roomId)
+  return [...quietCornerBubbles, ...userQuietBubbles]
+})
 
 const initializeMoodCalendar = () => {
   const bubblesToRecord = bubbles.filter(b =>
@@ -276,6 +306,25 @@ export function useBubbles() {
   )
 
   const { currentRoomId, updateRoomBubbleCount } = useRooms()
+
+  const toggleQuietCornerMode = () => {
+    quietCornerMode.value = !quietCornerMode.value
+    syncToStorage()
+  }
+
+  const displayBubbles = computed(() => {
+    if (quietCornerMode.value) {
+      return allQuietCornerBubbles.value
+    }
+    return bubbles.filter(b => !b.roomId)
+  })
+
+  const displayBubbleCount = computed(() => {
+    if (quietCornerMode.value) {
+      return allQuietCornerBubbles.value.length
+    }
+    return bubbles.filter(b => !b.roomId).length
+  })
 
   const bubblesWithoutRoom = computed(() =>
     bubbles.filter(b => !b.roomId)
@@ -483,6 +532,10 @@ export function useBubbles() {
     addSparkleParticles,
     getTopEmpathy,
     getFastestGrowing,
-    userId
+    userId,
+    quietCornerMode,
+    toggleQuietCornerMode,
+    displayBubbles,
+    displayBubbleCount
   }
 }
