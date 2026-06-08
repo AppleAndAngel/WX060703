@@ -25,6 +25,7 @@ export interface Bubble {
   ownerId: string
   floatOffset: number
   floatDuration: number
+  roomId?: string
 }
 
 export interface TapRecord {
