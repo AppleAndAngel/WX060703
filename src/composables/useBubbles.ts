@@ -3,6 +3,7 @@ import type { Bubble, TapRecord, SparkleParticle, RankingBubble, TimeRange } fro
 import { useLocalStorage, getUserId } from './useLocalStorage'
 import { useEmotions } from './useEmotions'
 import { useMoodCalendar } from './useMoodCalendar'
+import { useRooms } from './useRooms'
 
 const userId = getUserId()
 const { emotions, getEmotion } = useEmotions()
@@ -27,6 +28,36 @@ const initialBubbles: Bubble[] = [
   { id: 'demo-16', emotionId: 'happy', text: '路边的花开得好美', x: 50, y: 10, empathyCount: 7, createdAt: Date.now() - 4500000, ownerId: 'demo', floatOffset: 4, floatDuration: 7 },
   { id: 'demo-17', emotionId: 'angry', text: '被人插队了，好气', x: 90, y: 30, empathyCount: 5, createdAt: Date.now() - 6300000, ownerId: 'demo', floatOffset: 5, floatDuration: 11 },
   { id: 'demo-18', emotionId: 'lonely', text: '看了场电影，却没人分享', x: 30, y: 50, empathyCount: 14, createdAt: Date.now() - 8100000, ownerId: 'demo', floatOffset: 6, floatDuration: 8 },
+  { id: 'room-late-1', emotionId: 'lonely', text: '凌晨3点，还是睡不着', x: 20, y: 30, empathyCount: 8, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 0, floatDuration: 8, roomId: 'late-night' },
+  { id: 'room-late-2', emotionId: 'lonely', text: '失眠的夜晚，想起了很多事', x: 70, y: 40, empathyCount: 12, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 1, floatDuration: 10, roomId: 'late-night' },
+  { id: 'room-late-3', emotionId: 'lonely', text: '今晚的月亮好圆，但只有我一个人看', x: 40, y: 60, empathyCount: 15, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 2, floatDuration: 9, roomId: 'late-night' },
+  { id: 'room-late-4', emotionId: 'happy', text: '深夜写完了论文，感觉如释重负', x: 60, y: 25, empathyCount: 6, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'late-night' },
+  { id: 'room-late-5', emotionId: 'lonely', text: '听着老歌曲，回忆涌上心头', x: 30, y: 70, empathyCount: 9, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 8, roomId: 'late-night' },
+  { id: 'room-work-1', emotionId: 'angry', text: '今天又被甲方改了第8版方案', x: 15, y: 35, empathyCount: 25, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 8, roomId: 'work-rant' },
+  { id: 'room-work-2', emotionId: 'angry', text: '加班到10点，领导还在群里@我', x: 75, y: 45, empathyCount: 32, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 10, roomId: 'work-rant' },
+  { id: 'room-work-3', emotionId: 'angry', text: '同事甩锅，我背了黑锅', x: 45, y: 25, empathyCount: 18, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 9, roomId: 'work-rant' },
+  { id: 'room-work-4', emotionId: 'lonely', text: '工作3年了，工资一分没涨', x: 55, y: 65, empathyCount: 40, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'work-rant' },
+  { id: 'room-work-5', emotionId: 'happy', text: '今天摸鱼了一天，爽', x: 25, y: 50, empathyCount: 45, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 8, roomId: 'work-rant' },
+  { id: 'room-love-1', emotionId: 'lonely', text: '暗恋的人今天好像不开心', x: 30, y: 30, empathyCount: 15, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 9, roomId: 'love-trouble' },
+  { id: 'room-love-2', emotionId: 'lonely', text: '分手第7天，还是会想TA', x: 65, y: 50, empathyCount: 22, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 10, roomId: 'love-trouble' },
+  { id: 'room-love-3', emotionId: 'happy', text: '今天和crush表白成功了！', x: 20, y: 60, empathyCount: 35, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 8, roomId: 'love-trouble' },
+  { id: 'room-love-4', emotionId: 'angry', text: '对象又忘记纪念日了', x: 70, y: 25, empathyCount: 19, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'love-trouble' },
+  { id: 'room-love-5', emotionId: 'lonely', text: '单身25年，还有救吗', x: 45, y: 45, empathyCount: 28, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 9, roomId: 'love-trouble' },
+  { id: 'room-study-1', emotionId: 'angry', text: '考研还有30天，我还没开始复习', x: 25, y: 35, empathyCount: 50, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 10, roomId: 'study-hard' },
+  { id: 'room-study-2', emotionId: 'lonely', text: '论文改到第10版，导师还不满意', x: 60, y: 55, empathyCount: 33, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 8, roomId: 'study-hard' },
+  { id: 'room-study-3', emotionId: 'happy', text: '终于过了！答辩通过啦', x: 40, y: 25, empathyCount: 60, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 9, roomId: 'study-hard' },
+  { id: 'room-study-4', emotionId: 'angry', text: '考试周，图书馆抢不到位置', x: 70, y: 65, empathyCount: 22, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'study-hard' },
+  { id: 'room-study-5', emotionId: 'lonely', text: '一个人在图书馆学到深夜', x: 15, y: 50, empathyCount: 18, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 10, roomId: 'study-hard' },
+  { id: 'room-family-1', emotionId: 'angry', text: '又被催婚了，烦死了', x: 35, y: 30, empathyCount: 28, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 9, roomId: 'family-issue' },
+  { id: 'room-family-2', emotionId: 'lonely', text: '和父母代沟太深，无话可说', x: 65, y: 55, empathyCount: 20, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 8, roomId: 'family-issue' },
+  { id: 'room-family-3', emotionId: 'happy', text: '今天和爸妈好好聊了很久', x: 25, y: 65, empathyCount: 12, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 10, roomId: 'family-issue' },
+  { id: 'room-family-4', emotionId: 'angry', text: '亲戚又来问工资了', x: 55, y: 40, empathyCount: 35, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'family-issue' },
+  { id: 'room-family-5', emotionId: 'lonely', text: '今年过年不想回家', x: 45, y: 25, empathyCount: 25, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 9, roomId: 'family-issue' },
+  { id: 'room-friend-1', emotionId: 'lonely', text: '好朋友结婚了，我们渐行渐远', x: 20, y: 40, empathyCount: 18, createdAt: Date.now() - 3600000, ownerId: 'demo', floatOffset: 0, floatDuration: 8, roomId: 'friendship' },
+  { id: 'room-friend-2', emotionId: 'happy', text: '和十年的朋友，终于见面了！', x: 60, y: 30, empathyCount: 25, createdAt: Date.now() - 5400000, ownerId: 'demo', floatOffset: 1, floatDuration: 10, roomId: 'friendship' },
+  { id: 'room-friend-3', emotionId: 'lonely', text: '朋友聚会，我却融不进去', x: 40, y: 60, empathyCount: 15, createdAt: Date.now() - 7200000, ownerId: 'demo', floatOffset: 2, floatDuration: 9, roomId: 'friendship' },
+  { id: 'room-friend-4', emotionId: 'angry', text: '被最好的朋友背叛了', x: 75, y: 50, empathyCount: 30, createdAt: Date.now() - 1800000, ownerId: 'demo', floatOffset: 3, floatDuration: 11, roomId: 'friendship' },
+  { id: 'room-friend-5', emotionId: 'happy', text: '感谢有你们这些朋友真好', x: 30, y: 25, empathyCount: 22, createdAt: Date.now() - 900000, ownerId: 'demo', floatOffset: 4, floatDuration: 8, roomId: 'friendship' },
 ]
 
 const storedBubbles = useLocalStorage<Bubble[]>('bubbles', initialBubbles)
@@ -244,7 +275,31 @@ export function useBubbles() {
       .sort((a, b) => b.timestamp - a.timestamp)
   )
 
-  const addBubble = (emotionId: string, text?: string) => {
+  const { currentRoomId, updateRoomBubbleCount } = useRooms()
+
+  const bubblesWithoutRoom = computed(() =>
+    bubbles.filter(b => !b.roomId)
+  )
+
+  const bubblesByRoom = computed(() => {
+    const groups: Record<string, Bubble[]> = {}
+    bubbles.forEach(bubble => {
+      if (bubble.roomId) {
+        if (!groups[bubble.roomId]) {
+          groups[bubble.roomId] = []
+        }
+        groups[bubble.roomId].push(bubble)
+      }
+    })
+    return groups
+  })
+
+  const getBubblesForRoom = (roomId: string) => {
+    return bubbles.filter(b => b.roomId === roomId)
+  }
+
+  const addBubble = (emotionId: string, text?: string, roomId?: string) => {
+    const targetRoomId = roomId || currentRoomId.value || undefined
     const newBubble: Bubble = {
       id: crypto.randomUUID(),
       emotionId,
@@ -255,11 +310,15 @@ export function useBubbles() {
       createdAt: Date.now(),
       ownerId: userId,
       floatOffset: Math.random() * 10,
-      floatDuration: 6 + Math.random() * 8
+      floatDuration: 6 + Math.random() * 8,
+      roomId: targetRoomId
     }
     bubbles.push(newBubble)
     myBubbleIds.push(newBubble.id)
     recordMood(newBubble)
+    if (targetRoomId) {
+      updateRoomBubbleCount(targetRoomId, 1)
+    }
     syncToStorage()
     return newBubble
   }
@@ -416,6 +475,9 @@ export function useBubbles() {
     tonightEmotionPercentages,
     dominantEmotion,
     tonightDominantEmotion,
+    bubblesWithoutRoom,
+    bubblesByRoom,
+    getBubblesForRoom,
     addBubble,
     addEmpathy,
     addSparkleParticles,

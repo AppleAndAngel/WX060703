@@ -6,7 +6,6 @@ import { useEmotions } from '@/composables/useEmotions'
 
 const emit = defineEmits<{
   (e: 'close'): void
-  (e: 'generateCard', bubble: RankingBubble): void
 }>()
 
 const { getTopEmpathy, getFastestGrowing, userId } = useBubbles()
@@ -155,7 +154,7 @@ const formatGrowthRate = (rate: number) => {
           <div
             v-for="(bubble, index) in currentList"
             :key="bubble.id"
-            class="ranking-item flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02] group"
+            class="ranking-item flex items-center gap-3 p-3 rounded-xl border transition-all duration-200 hover:scale-[1.02]"
             :class="[
               bubble.ownerId === userId ? 'bg-green-500/10' : 'bg-white/5',
               bubble.ownerId === userId ? 'border-green-400/30' : getEmotionBorderColor(bubble)
@@ -193,25 +192,16 @@ const formatGrowthRate = (rate: number) => {
               </p>
             </div>
 
-            <div class="text-right flex-shrink-0 flex items-center gap-2">
-              <div class="text-right">
-                <div
-                  class="text-lg font-bold font-mono"
-                  :class="activeTab === 'empathy' ? 'text-blue-300' : 'text-green-300'"
-                >
-                  {{ activeTab === 'empathy' ? bubble.periodEmpathyCount : formatGrowthRate(bubble.growthRate) }}
-                </div>
-                <div class="text-[10px] text-white/40">
-                  {{ activeTab === 'empathy' ? '次共情' : '增长速度' }}
-                </div>
-              </div>
-              <button
-                class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/15 border border-white/10 flex items-center justify-center text-white/40 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100"
-                :title="'生成' + getEmotion(bubble.emotionId)?.name + '的纪念卡'"
-                @click.stop="emit('generateCard', bubble)"
+            <div class="text-right flex-shrink-0">
+              <div
+                class="text-lg font-bold font-mono"
+                :class="activeTab === 'empathy' ? 'text-blue-300' : 'text-green-300'"
               >
-                <span class="text-base">💌</span>
-              </button>
+                {{ activeTab === 'empathy' ? bubble.periodEmpathyCount : bubble.growthRate.toFixed(1) }}
+              </div>
+              <div class="text-[10px] text-white/40">
+                {{ activeTab === 'empathy' ? '次共情' : '次/时' }}
+              </div>
             </div>
           </div>
         </div>
