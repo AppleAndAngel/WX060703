@@ -63,12 +63,6 @@ const getEmotionBorderColor = (bubble: RankingBubble) => {
   if (!emotion) return 'border-white/20'
   return `border-[${emotion.color.from}]/40`
 }
-
-const formatGrowthRate = (rate: number) => {
-  if (rate >= 1) return `${rate.toFixed(1)}次/时`
-  if (rate * 60 >= 1) return `${(rate * 60).toFixed(1)}次/时`
-  return `${(rate * 24).toFixed(1)}次/天`
-}
 </script>
 
 <template>

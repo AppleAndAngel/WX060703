@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>()
 
 const { currentRoom, leaveRoom } = useRooms()
-const { getBubblesForRoom, getTopEmpathy } = useBubbles()
+const { getBubblesForRoom } = useBubbles()
 
 const showRoomSelector = ref(false)
 
@@ -21,8 +21,7 @@ const roomBubbles = computed(() => {
   return getBubblesForRoom(currentRoom.value.id)
 })
 
-const topBubblesToday = computed(() => getTopEmpathy('today'))
-const hasRankingData = computed(() => topBubblesToday.value.length > 0)
+
 
 const handleLeaveRoom = () => {
   leaveRoom()
